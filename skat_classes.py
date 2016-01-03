@@ -15,8 +15,8 @@ TOTAL_POINTS = 120
 
 def all_trumps(gameType):
     allTrumps = [] # For a null game, this will be returned unmodified.
-    if gameType is not 'null':
-        if gameType is not 'grand':
+    if gameType != 'null':
+        if gameType != 'grand':
             allTrumps += [val + gameType[0] for val in ORDER[:-1]] 
         allTrumps += ['j' + suit for suit in SUITS]
     return allTrumps
@@ -24,7 +24,7 @@ def all_trumps(gameType):
 def jack_multiplier(heldTrumps, gameType):
     # heldTrumps is a list of all trump in the hand and kitty.
     assert gameType in GAMES
-    if gameType is 'null':
+    if gameType == 'null':
         return None
 
     allTrumps = all_trumps(gameType)
@@ -43,7 +43,7 @@ def jack_multiplier(heldTrumps, gameType):
     return i - 1
 
 def game_value(declaration, roundOver, jackMultiplier=None):
-    if declaration[0] is 'null':
+    if declaration[0] == 'null':
         if 'no kitty' in declaration and 'reveal' in declaration:
             return 59
         if 'no kitty' in declaration:
@@ -54,9 +54,9 @@ def game_value(declaration, roundOver, jackMultiplier=None):
 
     mult = 1 + jackMultiplier
 
-    for item in EXTRAS + ['no kitty', 'take three quarters', \
+    for item in EXTRAS + ('no kitty', 'take three quarters', \
                           'take everything', 'lose three quarters', \
-                          'lose everything']:
+                          'lose everything'):
         if item in declaration:
             mult += 1
 
@@ -66,7 +66,10 @@ def game_value(declaration, roundOver, jackMultiplier=None):
         if 'call everything' in declaration:
             mult += 1 # Anticipating 'take everything'
 
-    return BASE_VALUES[gameType] * mult
+    return BASE_VALUES[declaration[0]] * mult
+
+def flatten(listOfLists):
+    return sum(listOfLists, [])
 
 class Round:
     def __init__(self):
@@ -101,13 +104,12 @@ class Round:
 
     def get_bid(self, p, i):
         bid = p.bid(self.h[i], self)
-
-        # Last bid was not a number; bid up.
-        if self.bidHistory == [] or type(self.bidHistory[-1]) is bool: 
-            assert type(bid) is int and bid > self.currentBid
+        #print('Seat {} bids {} (history: {})'.format(i, bid, self.bidHistory))
+        if len(self.bidHistory) > 0 and type(self.bidHistory[-1]) is int:
+            assert type(bid) is bool # Adjacent bids are never numbers.
+        elif type(bid) is int:
+            assert bid > self.currentBid # Numeric bids must be raises.
             self.currentBid = bid
-        else: # Last bid was a number; accept or refuse.
-            assert type(bid) is bool
 
         self.bidHistory.append(bid)
         return bid
@@ -132,7 +134,7 @@ class Round:
 
         self.kitty = []
         for discard in discards:
-            hand.cards.remove(discard)
+            hand.drop(discard)
             self.kitty.append(discard)
 
     def get_declaration(self, p):
@@ -146,9 +148,9 @@ class Round:
             self.declaration.append(item)
 
         # Only certain extras may be called in a null game.
-        if self.declaration[0] is 'null':
+        if self.declaration[0] == 'null':
             for item in declaration[1:]:
-                assert item is 'no kitty' or item is 'reveal'
+                assert item == 'no kitty' or item == 'reveal'
 
         # In non-null games, calling extras requires skipping the kitty.
         elif 'no kitty' not in declaration:
@@ -164,14 +166,17 @@ class Round:
         # taken, and tricks taken don't affect the multiplier.  My arbitrary
         # way to handle it is to keep the bid as the penalty.
         #
-        if gameType is 'null':
+        if gameType == 'null':
+            self.jackMultiplier = None
             gameValue = game_value(declaration, False)
             if self.currentBid > gameValue:
                 return gameValue
             else:
                 return False
 
-        hand.reorganize(gameType)
+        for i in range(N_PLAYERS):
+            self.h[i].reorganize(gameType) # Reorganize everyone's hands.
+            self.h[i].show()
 
         handTrumps = hand.cards[-1]
         kittyTrumps = []
@@ -182,7 +187,7 @@ class Round:
         self.jackMultiplier = jack_multiplier(heldTrumps, gameType)
 
         gameValue = game_value(declaration, False, self.jackMultiplier)
-        if self.currentBid > self.gameValue:
+        if self.currentBid > gameValue:
             while self.currentBid % BASE_VALUES[gameType] != 0:
                 self.currentBid += 1
         else:
@@ -192,13 +197,13 @@ class Round:
         hand = self.h[self.whoseTurn]
         cardToPlay = p.play(hand, self)
         
-        hand.cards.remove(cardToPlay)
+        hand.drop(cardToPlay)
         self.playHistory.append(cardToPlay)
         self.currentTrick.append(cardToPlay)
 
     def next_turn(self):
         whoseTurn = self.whoseTurn
-        gameType = self.gameType
+        gameType = self.declaration[0]
         trick = self.currentTrick
 
         if len(trick) < 3: # Trick is not finished yet.
@@ -208,36 +213,36 @@ class Round:
             highCardStrength = -1
             suitLed = trick[0][1]
 
-            if gameType is 'null':
-                for card in self.trick:
+            if gameType == 'null':
+                for card in trick:
                     strength = NULL_ORDER.index(card[0])
                     suit = card[1]
-                    if suit is suitLed and strength > highCardStrength:
+                    if suit == suitLed and strength > highCardStrength:
                         highCard, highCardStrength = card, strength
 
             else: # Not a null game
                 trumped = False
-                for card in self.trick:
-                    if card[0] is 'j' or card[1] is gameType[0]:
+                for card in trick:
+                    if card[0] == 'j' or card[1] == gameType[0]:
                         trumped = True
 
                 if trumped:
                     allTrumps = all_trumps(gameType)
-                    for card in self.trick:
+                    for card in trick:
                         if card in allTrumps:
                             strength = allTrumps.index(card)
                             if strength > highCardStrength:
                                 highCard, highCardStrength = card, strength
 
                 else: # No trump in this trick # TODO: clean up repetition
-                    for card in self.trick:
+                    for card in trick:
                         strength = ORDER.index(card[0])
                         suit = card[1]
-                        if suit is suitLed and strength > highCardStrength:
+                        if suit == suitLed and strength > highCardStrength:
                             highCard, highCardStrength = card, strength
 
             trickWinner = (whoseTurn + trick.index(highCard) + 1) % N_PLAYERS
-            if trickWinner is self.declarer:
+            if trickWinner == self.declarer:
                 self.cardsDeclarerTook += trick
             else:
                 self.cardsDefendersTook += trick
@@ -258,9 +263,9 @@ class Round:
         elif self.cardsDeclarerTook == []:
             self.declaration.append('lost everything')
 
-        d = self.declaration()
-        gameValue = self.game_value(d, True, self.jackMultiplier)
-        if d[0] is 'null':
+        d = self.declaration
+        gameValue = game_value(d, True, self.jackMultiplier)
+        if d[0] == 'null':
             won = 'lost everything' in d
         else: # Suit or grand game
             overcalled = ('called three quarters' in d and \
@@ -275,6 +280,21 @@ class Round:
         else:
             return -2 * gameValue
 
+    def legal_plays(self, hand):
+        if len(self.currentTrick) == 0:
+            return flatten(hand.cards)
+
+        cardLed = self.currentTrick[0]
+        if cardLed in all_trumps(self.declaration[0]):
+            legalPlays = hand.cards[-1]
+        else:
+            legalPlays = hand.cards[SUITS.find(cardLed[1])]
+
+        if legalPlays == []: # Can't follow suit
+            return flatten(hand.cards) # May play any card
+        else:
+            return legalPlays
+
     class Hand:
         def __init__(self, i):
             self.cards = [[], [], [], [], []] # D, S, H, C, trump
@@ -286,15 +306,21 @@ class Round:
         def add(self, newCards):
             self.cards[-1] += newCards # Add to end of hand arbitrarily.
 
+        def drop(self, card):
+            for suit in self.cards:
+                if card in suit:
+                    suit.remove(card)
+                    break
+
         def reorganize(self, gameType):
-            if gameType is None: # No organization needed
+            if gameType == None: # No organization needed
                 return
 
             # Undesignate suits, preparing to redistribute.
             newCards = [card for suit in self.cards for card in suit]
             self.cards = [[], [], [], [], []]
 
-            if gameType is 'grand':
+            if gameType == 'grand':
                 for card in newCards:
                     if card[0] == 'j':
                         self.cards[4].append(card)
@@ -303,7 +329,7 @@ class Round:
                 def sortKey(card):
                     return 10 * SUITS.find(card[1]) + ORDER.find(card[0])
 
-            elif gameType is 'null':
+            elif gameType == 'null':
                 for card in newCards:
                     self.cards[SUITS.find(card[1])].append(card)
                 order = NULL_ORDER
