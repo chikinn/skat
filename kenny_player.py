@@ -1,14 +1,23 @@
+"""A random skat player.
+
+Kenny always chooses a random card to play.  In the bidding, half the time he
+passes and half the time he makes the (lowest) next legal bid.  When declaring,
+he picks a game uniformly at random (and thus is biased toward suit games,
+of which there are four compared to just one null option and one grand option),
+always takes the kitty, and never calls any extras.
+
+See play_skat and the Round class in skat_classes for context.
+"""
 from skat_classes import *
 
-LEGAL_BIDS = (18,20,22,23,24,27,30,33,35,36,40,44,45,46,48,50,54,55,59,60)
-
-def next_legal_bid(bid):
-    bid += 1
-    while bid not in LEGAL_BIDS:
-        bid += 1
-    return bid
-
 class KennyPlayer:
+    def get_random(self,h):
+        if type(h.cards[0]) == list:
+            flat = sum(h.cards,[])
+        else:
+            flat = h.cards
+        return random.choice(flat)
+
     def bid(self, h, r):
         stillBid  = bool(random.getrandbits(1)) 
 
@@ -21,14 +30,14 @@ class KennyPlayer:
             # Returns True or False (Player 0 always bids this way)
             return bool(random.getrandbits(1))
 
-        if h.seat == 1 and len(r.bidHistory)%2 == 0:
+        if h.seat == 1 and len(r.bidHistory) % 2 == 0:
             # 50% chance of bidding higher (Player 1 first bidding phase)
             if stillBid:
                 return next_legal_bid(r.currentBid)
             return False
 
         # Returns True or False (Player 1 if he wins first bidding phase)
-        if h.seat == 1 and len(r.bidHistory)%2 == 1:
+        if h.seat == 1 and len(r.bidHistory) % 2 == 1:
             return bool(random.getrandbits(1))  
 
         # 50% chance to bid higher (Player 2 only bids second round)
@@ -36,13 +45,6 @@ class KennyPlayer:
             if stillBid:
                 return next_legal_bid(r.currentBid)
             return False
-
-    def get_random(self,h):
-        if type(h.cards[0]) == list:
-            flat = sum(h.cards,[])
-        else:
-            flat = h.cards
-        return random.choice(flat)
 
     def kitty(self, h, r):
         return True

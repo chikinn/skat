@@ -1,43 +1,41 @@
-#!/usr/local/bin/python
-
 from skat_classes import *
-from kenny_player import KennyPlayer
 
-def play_one_round(p0, p1, p2):
+def play_one_round(players, names, verbosity):
     # Setup
-    p = (p0, p1, p2) # Players
-    r = Round() # Instantiation of a single round of Skat
+    r = Round(names, verbosity) # Instantiation of a single round of Skat
     r.generate_deck()
     scores = [0, 0, 0]
     
     # Bidding
     while True: # Repeat until a player passes.
-        if not r.get_bid(p[1], 1):
+        if not r.get_bid(players[1], 1):
             advancer = 0
             break
-        if not r.get_bid(p[0], 0):
+        if not r.get_bid(players[0], 0):
             advancer = 1
             break
     
     while True:
-        if not r.get_bid(p[2], 2):
+        if not r.get_bid(players[2], 2):
             declarer = advancer
             break
-        if not r.get_bid(p[advancer], advancer):
+        if not r.get_bid(players[advancer], advancer):
             declarer = 2
             break
 
     if r.bidHistory == [False, False]: # First players both passed.
-        if not r.get_bid(p[0], 0):
+        if not r.get_bid(players[0], 0):
+            if verbosity == 'scores':
+                print('everyone passed')
             return scores # All players score no points.
         else:
             declarer = 0
     
     # Declaring (first kitty, then game type and other extras)
-    if r.get_kitty_declaration(p[declarer], declarer):
+    if r.get_kitty_declaration(players[declarer], declarer):
         r.give_kitty()
-        r.get_kitty_discards(p[declarer])
-    r.get_declaration(p[declarer])
+        r.get_kitty_discards(players[declarer])
+    r.get_declaration(players[declarer])
     
     overbid = r.check_overbid()
     if overbid:
@@ -46,13 +44,9 @@ def play_one_round(p0, p1, p2):
     
     # Trick taking
     for _ in range(N_CARDS):
-        r.get_play(p[r.whoseTurn])
+        r.get_play(players[r.whoseTurn])
         r.next_turn()
     
     # Scoring
     scores[declarer] = r.score()
-    print(r.playHistory)
     return scores
-
-scores = play_one_round(KennyPlayer(), KennyPlayer(), KennyPlayer())
-print(scores)
