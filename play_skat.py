@@ -1,10 +1,17 @@
+"""High-level instructions for playing a round of skat.
+
+Intended to be imported into a wrapper (skat_wrapper) so that more than one
+round can be played.  Low-level details, along with thorough documentation, are
+in another module (skat_classes).
+"""
 from skat_classes import *
 
 def play_one_round(players, names, verbosity):
+    """Play and return the scores (list of int) for one round."""
     # Setup
     r = Round(names, verbosity) # Instantiation of a single round of Skat
     r.generate_deck()
-    scores = [0, 0, 0]
+    scores = [0, 0, 0] # Convention: p0 plays first, p1 bids first, p2 deals
     
     # Bidding
     while True: # Repeat until a player passes.

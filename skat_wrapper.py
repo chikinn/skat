@@ -1,11 +1,11 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 """Wrapper for playing more than one round of skat.
 
 Command-line arguments (see usage):
   playeri: Name of the AI that will control each player
   nRounds: Number of rounds to play
   verbosity: How much output to show ('silent', only final average scores;
-             'scores', result of each round; 'verbose', play by play)
+    'scores', result of each round; 'verbose', play by play)
 """
 
 import sys
@@ -53,9 +53,9 @@ longestName = ''
 for name in names:
     if len(name) > len(longestName):
         longestName = name
-for name in names:
-    while len(name) < len(longestName):
-        name += ' '
+for i in range(len(names)):
+    while len(names[i]) < len(longestName):
+        names[i] += ' '
 
 # Ideally, to sample permutations evenly, this should be a multiple of 3! = 6.
 nRounds = int(sys.argv[4])
@@ -79,6 +79,7 @@ if verbosity != 'silent':
     print('')
 print('AVERAGE SCORES (+/- 1 std. err.):')
 for i in range(3):
+    # stat.sem() throws a warning if nRounds is small.  No big deal.
     print('{}, {} +/- {}'.format(names[i],
                                  str(mean(scores[i]))[:5],
                                  str(stats.sem(scores[i]))[:4] ))
