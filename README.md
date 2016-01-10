@@ -1,5 +1,11 @@
 # Skat
-### By Robert B. Kaspar and Jake Kaspar
+#### By Robert B. Kaspar and Jake Kaspar
+
+## Usage
+    usage: ./skat_wrapper.py player1 player2 player3 n_rounds verbosity
+      playeri: kenny or bob
+      n_rounds: positive integer (preferably a multiple of 6)
+      verbosity: silent, scores, or verbose
 
 ## Example usage
     $ ./skat_wrapper.py kenny kenny bob 6 verbose
@@ -30,9 +36,9 @@
 I guess Kenny's game could use a little work!
 
 ## Analysis of KennyPlayer
-Random play in such a complex game is quite punishing: in a game of three
-KennyPlayers, the average score is quite negative.  In most hands the declarer
-loses.
+Random play in such a complex game is punishing: in a match between three
+KennyPlayers, the average score is quite negative.  The declarer loses most
+hands.
 
 Interestingly, the Kenny in the middle seat scores 30% higher (well, less
 negative) on average.  This is because the middle seat bids first, and Kenny's
@@ -45,6 +51,7 @@ Similarly, when one or more Kennys are replaced by SilentBob, who is identical
 to Kenny except that he refuses to bid, Kenny fares even worse: he has fewer
 other bidders to rely on to save him from his own disastrous bidding.  Here are
 Kenny's average scores (100,000 games) as a function of the number of Bobs:
+
     3 Kennys / 0 Bobs, -20.4 +/- 0.15
     2 Kennys / 1 Bob,  -26.1 +/- 0.16
     1 Kenny  / 2 Bobs, -34.3 +/- 0.18
