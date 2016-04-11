@@ -11,7 +11,7 @@ See play_skat and the Round class in skat_classes for context.
 from skat_classes import *
 
 class KennyPlayer:
-    def get_random(self,h):
+    def get_random(self, h):
         if type(h.cards[0]) == list:
             flat = sum(h.cards,[])
         else:
