@@ -13,7 +13,7 @@ from skat_classes import *
 class KennyPlayer:
     def get_random(self, h):
         if type(h.cards[0]) == list:
-            flat = sum(h.cards,[])
+            flat = sum(h.cards, [])
         else:
             flat = h.cards
         return random.choice(flat)
