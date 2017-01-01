@@ -40,12 +40,11 @@ Random play in such a complex game is punishing: in a match between three
 KennyPlayers, the average score is quite negative.  The declarer loses most
 hands.
 
-Interestingly, the Kenny in the middle seat scores 30% higher (well, less
-negative) on average.  This is because the middle seat bids first, and Kenny's
-best "strategy" in the bidding is not to bid at all (since a Kenny declarer
-usually loses).  With the advantage of bidding first, even if Kenny doesn't
-pass immediately, there's a good chance one of the other players will bid,
-giving him another chance to pass.
+Interestingly, the Kenny who bids first scores 30% higher (well, less negative)
+on average, because Kenny's best "strategy" is not to bid at all (since a Kenny
+declarer usually loses).  With the advantage of bidding first, even if Kenny
+doesn't pass immediately, there's a good chance one of the other players will
+bid, giving him another chance to pass.
 
 Similarly, when one or more Kennys are replaced by SilentBob, who is identical
 to Kenny except that he refuses to bid, Kenny fares even worse: he has fewer
