@@ -35,7 +35,7 @@ def play_one_round(players, names, verbosity):
         if not r.get_bid(players[0], 0):
             if verbosity == 'scores':
                 print('everyone passed')
-            return scores # All players score no points.
+            return scores # All players score no points.  ### TODO: minigame
         else:
             declarer = 0
     

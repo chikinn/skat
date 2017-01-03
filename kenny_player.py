@@ -58,6 +58,8 @@ class KennyPlayer:
         return [kitty1,kitty2]
  
     def declare(self, h, r):
+        if r.currentBid > 23: # Forbid an illegal overbid null game.
+            return [random.choice([g for g in GAMES if g != 'null'])]
         return [random.choice(GAMES)]
 
     def play(self, h, r):

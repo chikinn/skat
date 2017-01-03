@@ -205,16 +205,13 @@ class Round:
 
         #
         # Overbidding a null game should never happen since the kitty, points
-        # taken, and tricks taken don't affect the multiplier.  My arbitrary
-        # way to handle it is to keep the bid as the penalty.
+        # taken, and tricks taken don't affect the multiplier.
         #
         if gameType == 'null':
-            self.jackMultiplier = None
+            self.jackMultiplier = None # Is this line needed?
             gameValue = game_value(declaration, False)
-            if self.currentBid > gameValue:
-                return gameValue
-            else:
-                return False
+            assert self.currentBid <= gameValue
+            return False
 
         for i in range(N_PLAYERS):
             self.h[i].reorganize(gameType) # Reorganize everyone's hands.
@@ -231,7 +228,7 @@ class Round:
         self.jackMultiplier = jack_multiplier(heldTrumps, gameType)
 
         gameValue = game_value(declaration, False, self.jackMultiplier)
-        if self.currentBid > gameValue:
+        if self.currentBid > gameValue: ### TODO: consolidate into round_up
             if self.verbosity == 'verbose':
                 print('Overbid!')
             return round_up(self.currentBid, gameType)
@@ -324,19 +321,19 @@ class Round:
         d = self.declaration
         gameValue = game_value(d, True, self.jackMultiplier)
         if d[0] == 'null':
-            won = 'lost everything' in d
+            won = 'loses everything!' in d
         else: # Suit or grand game
-            overbid = ('calls three quarters' in d and \
-                       'takes three quarters' not in d) \
-                      or \
-                      ('calls everything!' in d and \
-                       'takes everything!' not in d)
-            won = points > TOTAL_POINTS / 2 and not overbid
+            overcalled = ('calls three quarters' in d and \
+                          'takes three quarters' not in d) \
+                         or \
+                         ('calls everything!' in d and \
+                          'takes everything!' not in d)
+            won = points > TOTAL_POINTS / 2 and not overcalled
 
         if won:
             out = gameValue
-        else:
-            if d[0] != 'null' and overbid:
+        else: ### TODO: consolidate into round_up
+            if gameValue < self.currentBid:
                 gameValue = round_up(self.currentBid, d[0])
                 if self.verbosity == 'verbose':
                     print('Overbid!')
@@ -358,7 +355,7 @@ class Round:
             print(self.zazz[0], '{} bids {}'.format(self.h[i].name, bid))
             self.zazz[0] = ' ' * len(self.zazz[0])
         if len(self.bidHistory) > 0 and type(self.bidHistory[-1]) is int:
-            assert type(bid) is bool # Adjacent bids are never numbers.
+            assert type(bid) is bool # Can't have two numeric bids in a row.
         elif type(bid) is int:
             assert bid > self.currentBid # Numeric bids must be raises.
             self.currentBid = bid
