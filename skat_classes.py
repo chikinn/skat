@@ -101,7 +101,7 @@ def flatten(listOfLists):
     return sum(listOfLists, []) # No idea why this works
 
 def next_legal_bid(bid):
-    """Return the lowest bid (int > 0)that may be made after the given bid."""
+    """Return the lowest bid (int > 0) that may be made after the given bid."""
     bid += 1
     while bid not in LEGAL_BIDS:
         bid += 1

@@ -19,7 +19,7 @@ class KennyPlayer:
         return random.choice(flat)
 
     def bid(self, h, r):
-        stillBid  = bool(random.getrandbits(1)) 
+        stillBid = bool(random.getrandbits(1)) 
 
         if h.seat == 0:
             if r.bidHistory == [False, False]:
