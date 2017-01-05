@@ -107,14 +107,6 @@ def next_legal_bid(bid):
         bid += 1
     return bid
 
-def round_up_overbid(bid, gameType):
-    """For an overbid, return next multiple (int > 0) of game's base value."""
-    if self.verbosity == 'verbose':
-        print('Overbid!')
-    while bid % BASE_VALUES[gameType] != 0:
-        bid += 1
-    return bid
-
 
 class Round:
     """Store round info and interact with AI players.
@@ -231,8 +223,16 @@ class Round:
 
         gameValue = game_value(declaration, False, self.jackMultiplier)
         if self.currentBid > gameValue:
-            return round_up_overbid(self.currentBid, gameType)
+            return self.round_up_overbid(self.currentBid, gameType)
         return False
+
+    def round_up_overbid(self, bid, gameType):
+        """Return next multiple (int > 0) of game's base value."""
+        if self.verbosity == 'verbose':
+            print('Overbid!')
+        while bid % BASE_VALUES[gameType] != 0:
+            bid += 1
+        return bid
 
     def next_turn(self):
         """Figure out whose turn is next and do various book-keeping."""
@@ -333,7 +333,7 @@ class Round:
             out = gameValue
         else:
             if self.currentBid > gameValue:
-                gameValue = round_up_overbid(self.currentBid, d[0])
+                gameValue = self.round_up_overbid(self.currentBid, d[0])
             out = -2 * gameValue
 
         if self.verbosity == 'verbose':

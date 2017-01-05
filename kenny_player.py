@@ -9,6 +9,7 @@ always takes the kitty, and never calls any extras.
 See play_skat and the Round class in skat_classes for context.
 """
 from skat_classes import *
+from bot_utils import *
 
 class KennyPlayer:
     def get_random(self, h):
@@ -18,33 +19,18 @@ class KennyPlayer:
             flat = h.cards
         return random.choice(flat)
 
-    def bid(self, h, r):
-        stillBid = bool(random.getrandbits(1)) 
+    def initialize_bidding(self):
+        bidIndex = -1
+        while bool(random.getrandbits(1)): # Coin flip
+            bidIndex += 1
+        if bidIndex == -1:
+            self.maxBid = LEGAL_BIDS[0] - 1 # Pass immediately.
+        else:
+            self.maxBid = LEGAL_BIDS[bidIndex]
 
-        if h.seat == 0:
-            if r.bidHistory == [False, False]:
-                if stillBid:
-                    return LEGAL_BIDS[0]
-                else:
-                    return False
-            # Returns True or False (Player 0 always bids this way)
-            return bool(random.getrandbits(1))
-
-        if h.seat == 1 and len(r.bidHistory) % 2 == 0:
-            # 50% chance of bidding higher (Player 1 first bidding phase)
-            if stillBid:
-                return next_legal_bid(r.currentBid)
-            return False
-
-        # Returns True or False (Player 1 if he wins first bidding phase)
-        if h.seat == 1 and len(r.bidHistory) % 2 == 1:
-            return bool(random.getrandbits(1))  
-
-        # 50% chance to bid higher (Player 2 only bids second round)
-        if h.seat == 2:
-            if stillBid:
-                return next_legal_bid(r.currentBid)
-            return False
+    def bid(self, _,  r):
+        self.initialize_bidding()
+        return bid_incrementally(r, self.maxBid)
 
     def kitty(self, h, r):
         return True

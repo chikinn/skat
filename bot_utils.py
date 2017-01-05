@@ -21,5 +21,5 @@ def bid_incrementally(r, maxBid):
 
     if bidType == int:
         return next_legal_bid(r.currentBid)
-    else: # bool
+    else: # Bool
         return True
