@@ -98,7 +98,10 @@ def game_value(declaration, roundOver, jackMultiplier=None):
 
 def flatten(listOfLists):
     """Return the entries of the input's sublists (list)."""
-    return sum(listOfLists, []) # No idea why this works
+    if type(listOfLists[0]) == list:
+        return sum(listOfLists, []) # No idea why this works
+    else:
+        return listOfLists
 
 def next_legal_bid(bid):
     """Return the lowest bid (int > 0) that may be made after the given bid."""
