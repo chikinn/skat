@@ -8,18 +8,18 @@ always takes the kitty, and never calls any extras.
 
 See play_skat and the Round class in skat_classes for context.
 """
+
 from skat_classes import *
 from bot_utils import *
 
 class KennyPlayer:
-    def get_random(self, h):
-        if type(h.cards[0]) == list:
-            flat = sum(h.cards, [])
-        else:
-            flat = h.cards
-        return random.choice(flat)
+    def get_random(self, h, n=1):
+	"""Return a list of n cards from the hand."""
+        flatHand = flatten(h.cards)
+        return random.sample(flatHand, n)
 
     def initialize_bidding(self):
+        """Flip coins to determine how high to bid."""
         bidIndex = -1
         while bool(random.getrandbits(1)): # Coin flip
             bidIndex += 1
@@ -32,18 +32,13 @@ class KennyPlayer:
         self.initialize_bidding()
         return bid_incrementally(r, self.maxBid)
 
-    def kitty(self, h, r):
-        return True
+    def kitty(self, _, __):
+        return True # Always take the kitty.
 
-    def discard(self, h, r):
-        kitty1 = 0
-        kitty2 = 0
-        while kitty1 == kitty2:
-            kitty1 = self.get_random(h)
-            kitty2 = self.get_random(h)
-        return [kitty1,kitty2]
+    def discard(self, h, _):
+        return self.get_random(h, 2)
  
-    def declare(self, h, r):
+    def declare(self, _, r):
         if r.currentBid > 23: # Forbid an illegal overbid null game.
             return [random.choice([g for g in GAMES if g != 'null'])]
         return [random.choice(GAMES)]
