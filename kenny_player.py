@@ -14,7 +14,7 @@ from bot_utils import *
 
 class KennyPlayer:
     def get_random(self, h, n=1):
-	"""Return a list of n cards from the hand."""
+        """Return a list of n cards from the hand."""
         flatHand = flatten(h.cards)
         return random.sample(flatHand, n)
 
