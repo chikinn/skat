@@ -13,12 +13,7 @@ from skat_classes import *
 from bot_utils import *
 
 class KennyPlayer:
-    def get_random(self, h, n=1):
-        """Return a list of n cards from the hand."""
-        flatHand = flatten(h.cards)
-        return random.sample(flatHand, n)
-
-    def initialize_bidding(self):
+    def __init__(self):
         """Flip coins to determine how high to bid."""
         bidIndex = -1
         while bool(random.getrandbits(1)): # Coin flip
@@ -29,14 +24,13 @@ class KennyPlayer:
             self.maxBid = LEGAL_BIDS[bidIndex]
 
     def bid(self, _,  r):
-        self.initialize_bidding()
         return bid_incrementally(r, self.maxBid)
 
     def kitty(self, _, __):
         return True # Always take the kitty.
 
     def discard(self, h, _):
-        return self.get_random(h, 2)
+        return get_random(h, 2)
  
     def declare(self, _, r):
         if r.currentBid > 23: # Forbid an illegal overbid null game.

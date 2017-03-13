@@ -135,7 +135,7 @@ class Round:
       discarded by her.  NOT public info.
     playHistory (list of str): Chronological cards played so far.
     verbosity (str): How much to show ('silent', 'scores', or 'verbose').
-    zazz (list of str): Schnazzy labeled indents for verbose output.
+    zazz (list of str): Schnazzy indented headings for verbose output.
     """
 
     def __init__(self, names, verbosity):

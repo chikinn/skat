@@ -5,6 +5,8 @@ will use it, however, then it doesn't belong here."""
 
 from skat_classes import *
 
+### BIDDING
+
 def bid_incrementally(r, maxBid):
     """Slowly bid up to the desired max."""
     if r.currentBid < LEGAL_BIDS[0] or type(r.bidHistory[-1]) == bool:
@@ -23,3 +25,12 @@ def bid_incrementally(r, maxBid):
         return next_legal_bid(r.currentBid)
     else: # Bool
         return True
+
+### PLAYING
+
+### OTHER
+
+def get_random(h, n=1):
+    """Return a list of n cards from the hand."""
+    flatHand = flatten(h.cards)
+    return random.sample(flatHand, n)

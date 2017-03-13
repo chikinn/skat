@@ -5,6 +5,7 @@ like Kenny, but never bids.
 
 See play_skat and the Round class in skat_classes for context.
 """
+
 from skat_classes import *
 
 class SilentBobPlayer:
