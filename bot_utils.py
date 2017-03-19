@@ -28,6 +28,28 @@ def bid_incrementally(r, maxBid):
 
 ### PLAYING
 
+def count_certain_tricks(suitContents, null=False):
+    """Count how many tricks can be guaranteed won (or lost, for null)."""
+    unsuitedContents = [card[0] for card in suitContents]
+
+    order = reversed(ORDER) # Sort suit with best cards first.
+    if null:
+        order = NULL_ORDER
+
+    nWinners = 0 # For a null game, these are really "losers".
+    for card in order:
+        if card in unsuitedContents:
+            nWinners += 1
+        else:
+            break
+
+    # Consider the worst case: one opponent holds the rest of the suit.
+    nGaps = len(order) - nWinners
+    if nWinners >= nGaps:
+        return len(suitContents) # Bleed then sweep -- but watch out for trump!
+    else:
+        return nWinners
+
 ### OTHER
 
 def get_random(h, n=1):

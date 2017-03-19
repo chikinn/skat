@@ -7,11 +7,15 @@ in another module (skat_classes).
 
 from skat_classes import *
 
+N_CARDS = 30 # Excluding kitty
+
 def play_one_round(players, names, verbosity):
     """Play and return the scores (list of int) for one round."""
     # Setup
     r = Round(names, verbosity) # Instantiation of a single round of skat
     r.generate_deck()
+    # List, not generator --> non-lazy
+    [p.assess_hand(r) for p in players]
     scores = [0, 0, 0] # Convention: p0 plays first, p1 bids first, p2 deals
     
     # Bidding

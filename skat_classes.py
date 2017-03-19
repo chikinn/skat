@@ -26,7 +26,6 @@ SUITS        = 'dshc'
 ORDER        = '789qktaj'
 NULL_ORDER   = '789tjqka'
 N_PLAYERS    = 3
-N_CARDS      = 30 # Excluding kitty
 LEGAL_BIDS   = (18,20,22,23,24,27,30,33,35,36,40,44,45,46,48,50,54,55,59,60)
 GAMES        = ('null', 'diamonds', 'spades', 'hearts', 'clubs', 'grand')
 # See game_value() for null game values.
@@ -200,6 +199,11 @@ class Round:
             print('{} calls {}'\
                   .format(self.h[self.declarer].name, ', '.join(declaration)))
 
+        for i in range(N_PLAYERS):
+            self.h[i].reorganize(gameType) # Reorganize everyone's hands.
+            if self.verbosity == 'verbose':
+                self.h[i].show(self.zazz[1])
+                self.zazz[1] = ' ' * len(self.zazz[1])
         #
         # Overbidding a null game should never happen since the kitty, points
         # taken, and tricks taken don't affect the multiplier.
@@ -209,12 +213,6 @@ class Round:
             gameValue = game_value(declaration, False)
             assert self.currentBid <= gameValue
             return False
-
-        for i in range(N_PLAYERS):
-            self.h[i].reorganize(gameType) # Reorganize everyone's hands.
-            if self.verbosity == 'verbose':
-                self.h[i].show(self.zazz[1])
-                self.zazz[1] = ' ' * len(self.zazz[1])
 
         handTrumps = hand.cards[-1]
         kittyTrumps = []

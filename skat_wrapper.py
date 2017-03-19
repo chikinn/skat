@@ -13,6 +13,7 @@ from scipy import stats, mean
 from play_skat import play_one_round
 from kenny_player import KennyPlayer
 from silent_bob_player import SilentBobPlayer
+from nihilist_player import NihilistPlayer
 
 N_PLAYERS    = 3
 PERMUTATIONS = ((0,1,2), (0,2,1), (1,0,2), (1,2,0), (2,0,1), (2,1,0))
@@ -26,12 +27,14 @@ def usage():
     print('  verbosity: silent, scores, or verbose')
     sys.exit(2)
 
-def make_player(name):
+def make_player(name, seat):
     """Instantiate and return a player."""
     if name == 'kenny':
-        return KennyPlayer()
+        return KennyPlayer(seat)
     elif name == 'bob':
-        return SilentBobPlayer()
+        return SilentBobPlayer(seat)
+    elif name == 'nihilist':
+        return NihilistPlayer(seat)
 
 if len(sys.argv) != 6:
     usage()
@@ -72,7 +75,9 @@ for i in range(nRounds):
     if verbosity == 'verbose':
         print('\n' + 'ROUND {}:'.format(i))
     permutation = PERMUTATIONS[i % 6]
-    score = play_one_round([make_player(names[p]) for p in permutation],
+    ### TODO: necessary to re-instantiate players every round?
+    score = play_one_round([make_player(names[p], j) \
+                               for j, p in enumerate(permutation)],
                            [prettyNames[p] for p in permutation],
                            verbosity)
     for j, p in enumerate(permutation):

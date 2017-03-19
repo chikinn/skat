@@ -13,7 +13,10 @@ from skat_classes import *
 from bot_utils import *
 
 class KennyPlayer:
-    def __init__(self):
+    def __init__(self, seat):
+        self.seat = seat
+
+    def assess_hand(self, r):
         """Flip coins to determine how high to bid."""
         bidIndex = -1
         while bool(random.getrandbits(1)): # Coin flip
