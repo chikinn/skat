@@ -173,6 +173,8 @@ class Round:
     def give_kitty(self):
         """Add cards from kitty to declarer's hand."""
         self.h[self.declarer].add(self.kitty)
+        if self.verbosity == 'verbose':
+            print("kitty: " + self.kitty)
 
     def check_overbid(self):
         """If bid (int) too high, round up and return, otherwise return False.
@@ -338,6 +340,7 @@ class Round:
             out = -2 * gameValue
 
         if self.verbosity == 'verbose':
+            print("points taken:  " + str(points))
             if len(d) > 1:
                 print(', '.join(d[1:]))
             print('{} scores {}'.format(self.h[self.declarer].name, out))

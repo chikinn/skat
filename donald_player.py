@@ -14,26 +14,27 @@ from bot_utils import *
 
 class DonaldPlayer:
 
-def assess_hand(self, h): #Returns a number to bid up to
-	flat = h.flatten()
-	count = 0
-	for i in range(0, 9): #Counts # of Jacks and Aces
-		h[x][0] == 'a':
-			count++
-	if count > 3: # needs at least 4 Jacks and Aces
-		suit = largest_suit(h)
-		if jack_multiplier(h[4],'grand') >2: #fix works for bottom jacks
-			return game_value('grand',False,jack_multiplier(h[4],'grand'))
-		else
-			return game_value(suit,false,jack_multiplier(h[4],suit))
+    def assess_hand(self, h): #Returns a number to bid up to
+        flat = h.flatten()
+        count = 0
+        for i in range(0, 9): #Counts # of Jacks and Aces
+            h[x][0] == 'a':
+                count++
+            if count > 3: # needs at least 4 Jacks and Aces
+                suit = largest_suit(h)
+            if jack_multiplier(h[4],'grand') >2: #fix works for bottom jacks
+                return game_value('grand',False,jack_multiplier(h[4],'grand'))
+            else:
+                return game_value(suit,false,jack_multiplier(h[4],suit))
 
-def bid(self, h):
-	bid_incrementally(assess_hand(h))
+    def bid(self, h):
+        bid_incrementally(assess_hand(h))
 
-def kitty(self, h, r):
-	return True
+    def kitty(self, h, r):
+        return True
 
-def discard(self,h,r):
+    def discard(self,h,r):
+
 	
 
 
