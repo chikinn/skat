@@ -9,6 +9,12 @@ See play_skat and the Round class in skat_classes for context.
 from skat_classes import *
 
 class SilentBobPlayer:
+    def __init__(self, seat):
+        self.seat = seat
+
+    def assess_hand(self, r):
+        pass
+
     def bid(self, h, r):
         return False
 
