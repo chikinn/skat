@@ -140,6 +140,7 @@ class Round:
     def __init__(self, names, verbosity):
         """Instantiate a Round and its three Hand sub-objects."""
         self.h = [self.Hand(i, names[i]) for i in range(N_PLAYERS)]
+        self.whoseTurn = 0
         self.declaration = []
 
         self.bidHistory  = []
@@ -150,6 +151,7 @@ class Round:
 
         self.cardsDeclarerTook  = []
         self.cardsDefendersTook = []
+        self.cardsPlayersTook   = [[], [], []] # For minigame
         
         self.verbosity = verbosity
         self.zazz = ['[BIDS]  ', '[HANDS] ', '[TRICKS]']
@@ -191,19 +193,27 @@ class Round:
         throughout the round but becomes harder to calculate once cards have
         been played.
         """
-        hand = self.h[self.declarer]
+
+        if self.declarer == None:
+            handName = "No one"
+        else:
+            hand = self.h[self.declarer]
+            handName = hand.name
         declaration = self.declaration
         gameType = declaration[0]
 
         if self.verbosity == 'verbose':
-            print('{} calls {}'\
-                  .format(self.h[self.declarer].name, ', '.join(declaration)))
+            print('{} calls {}'.format(handName, ', '.join(declaration)))
 
         for i in range(N_PLAYERS):
             self.h[i].reorganize(gameType) # Reorganize everyone's hands.
             if self.verbosity == 'verbose':
                 self.h[i].show(self.zazz[1])
                 self.zazz[1] = ' ' * len(self.zazz[1])
+
+        if self.declarer == None:
+            return False # Minigame
+
         #
         # Overbidding a null game should never happen since the kitty, points
         # taken, and tricks taken don't affect the multiplier.
@@ -273,6 +283,7 @@ class Round:
                     highCard, highCardStrength = card, strength
 
             trickWinner = (whoseTurn + trick.index(highCard) + 1) % N_PLAYERS
+            self.cardsPlayersTook[trickWinner] += trick
             if trickWinner == self.declarer:
                 self.cardsDeclarerTook += trick
             else:
@@ -306,7 +317,8 @@ class Round:
 
     def score(self):
         """Add up cards to see if declarer won.  Return her score (int)."""
-        points = sum([POINTS[card[0]] for card in self.cardsDeclarerTook])
+        points = sum([POINTS[card[0]] \
+                      for card in self.cardsDeclarerTook + self.kitty])
 
         if points >= TOTAL_POINTS * 3/4:
             self.declaration.append('takes three quarters')
@@ -346,6 +358,17 @@ class Round:
 
         return out
 
+    def score_minigame(self):
+        points = [sum([POINTS[c[0]] for c in self.cardsPlayersTook[i]])
+                  for i in range(N_PLAYERS)] 
+
+        maxPoints = max(points)
+        for i in range(N_PLAYERS):
+            if points[i] == maxPoints: # Winner!
+                points[i] += sum([POINTS[c[0]] for c in self.kitty])
+
+        return [-1 * p for p in points]
+
     def get_bid(self, p, i):
         """Return AI p's bid (int/bool) for seat i."""
         bid = p.bid(self.h[i], self)
@@ -371,7 +394,6 @@ class Round:
             if self.verbosity == 'verbose':
                 print('skips the kitty!')
         self.declarer = i
-        self.whoseTurn = i
         return declaration
 
     def get_kitty_discards(self, p):

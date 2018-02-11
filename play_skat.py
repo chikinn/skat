@@ -9,13 +9,17 @@ from skat_classes import *
 
 N_CARDS = 30 # Excluding kitty
 
+def trick_taking(r, players):
+    for _ in range(N_CARDS):
+        r.get_play(players[r.whoseTurn])
+        r.next_turn()
+
 def play_one_round(players, names, verbosity):
     """Play and return the scores (list of int) for one round."""
     # Setup
     r = Round(names, verbosity) # Instantiation of a single round of skat
     r.generate_deck()
-    # List, not generator --> non-lazy
-    [p.assess_hand(r) for p in players]
+    [p.assess_hand(r) for p in players] # List, not generator --> non-lazy
     scores = [0, 0, 0] # Convention: p0 plays first, p1 bids first, p2 deals
     
     # Bidding
@@ -38,8 +42,12 @@ def play_one_round(players, names, verbosity):
     if r.bidHistory == [False, False]: # First players both passed.
         if not r.get_bid(players[0], 0):
             if verbosity == 'scores':
-                print('everyone passed')
-            return scores # All players score no points.  ### TODO: minigame
+                print('everyone passed -- minigame!')
+            r.declarer    = None
+            r.declaration = ['grand']
+            r.check_overbid()
+            trick_taking(r, players)
+            return r.score_minigame()
         else:
             declarer = 0
     
@@ -54,10 +62,7 @@ def play_one_round(players, names, verbosity):
         scores[declarer] = -2 * overbid
         return scores
     
-    # Trick taking
-    for _ in range(N_CARDS):
-        r.get_play(players[r.whoseTurn])
-        r.next_turn()
+    trick_taking(r, players)
     
     # Scoring
     scores[declarer] = r.score()
