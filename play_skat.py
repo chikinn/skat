@@ -41,8 +41,6 @@ def play_one_round(players, names, verbosity):
 
     if r.bidHistory == [False, False]: # First players both passed.
         if not r.get_bid(players[0], 0):
-            if verbosity == 'scores':
-                print('everyone passed -- minigame!')
             r.declarer    = None
             r.declaration = ['grand']
             r.check_overbid()

@@ -154,7 +154,7 @@ class Round:
         self.cardsPlayersTook   = [[], [], []] # For minigame
         
         self.verbosity = verbosity
-        self.zazz = ['[BIDS]  ', '[HANDS] ', '[TRICKS]']
+        self.zazz = ['[BIDS]  ', '[HANDS] ', '[KITTY] ', '[TRICKS]']
 
     def generate_deck(self):
         """Construct a deck, shuffle, and deal."""
@@ -171,12 +171,11 @@ class Round:
         self.h[1].add(deck[10:20]) #
         self.h[2].add(deck[20:30]) #
         self.kitty = deck[30:]     # ... and to kitty.
+        self.oldKitty = self.kitty
 
     def give_kitty(self):
         """Add cards from kitty to declarer's hand."""
         self.h[self.declarer].add(self.kitty)
-        if self.verbosity == 'verbose':
-            print("kitty: " + str(self.kitty))
 
     def check_overbid(self):
         """If bid (int) too high, round up and return, otherwise return False.
@@ -212,6 +211,13 @@ class Round:
             if self.verbosity == 'verbose':
                 self.h[i].show(self.zazz[1])
                 self.zazz[1] = ' ' * len(self.zazz[1])
+
+        if self.verbosity == 'verbose':
+            kittyS = '{} {} {}' \
+                     .format(self.zazz[2], self.oldKitty[0], self.oldKitty[1])
+            if not ('no kitty' in self.declaration or handName == "No one"):
+                kittyS += ' --> {} {}'.format(self.kitty[0], self.kitty[1])
+            print(kittyS)
 
         if self.declarer == None:
             return False # Minigame
@@ -292,11 +298,11 @@ class Round:
                 self.cardsDefendersTook += trick
 
             if self.verbosity == 'verbose':
-                print(self.zazz[2], '{} leads {} {} {} --> {}'
+                print(self.zazz[3], '{} leads {} {} {} --> {}'
                       .format(self.h[(whoseTurn + 1) % N_PLAYERS].name,
                               trick[0], trick[1], trick[2],
                               self.h[trickWinner].name))
-                self.zazz[2] = ' ' * len(self.zazz[2])
+                self.zazz[3] = ' ' * len(self.zazz[3])
 
             self.currentTrick = []
             self.whoseTurn = trickWinner
@@ -352,10 +358,10 @@ class Round:
             out = -2 * gameValue
 
         if self.verbosity == 'verbose':
-            print("points taken:  " + str(points))
             if len(d) > 1:
                 print(', '.join(d[1:]))
-            print('{} scores {}'.format(self.h[self.declarer].name, out))
+            print('{} took {} points; scores {}' \
+                  .format(self.h[self.declarer].name, points, out))
         elif self.verbosity == 'scores':
             print('{} {}'.format(self.h[self.declarer].name, out))
 
@@ -367,10 +373,21 @@ class Round:
 
         maxPoints = max(points)
         for i in range(N_PLAYERS):
-            if points[i] == maxPoints: # Winner!
+            if points[i] == maxPoints: # Winner(s)!
                 points[i] += sum([POINTS[c[0]] for c in self.kitty])
 
-        return [-1 * p for p in points]
+        scores = [-1 * p for p in points]
+
+        if self.verbosity == 'verbose':
+            for i in range(N_PLAYERS):
+                print('{} scores {}'.format(self.h[i].name, scores[i]))
+        elif self.verbosity == 'scores':
+            outStr = ''
+            for i in range(N_PLAYERS):
+                outStr += '{} {}, '.format(self.h[i].name, scores[i])
+            print(outStr[:-2])
+
+        return scores
 
     def get_bid(self, p, i):
         """Return AI p's bid (int/bool) for seat i."""
