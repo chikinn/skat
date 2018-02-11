@@ -176,7 +176,7 @@ class Round:
         """Add cards from kitty to declarer's hand."""
         self.h[self.declarer].add(self.kitty)
         if self.verbosity == 'verbose':
-            print("kitty: " + self.kitty)
+            print("kitty: " + str(self.kitty))
 
     def check_overbid(self):
         """If bid (int) too high, round up and return, otherwise return False.
